@@ -1,5 +1,3 @@
-package SE_Final;
-
 import java.util.List;
 
 class FacilityThreatAnalysis {

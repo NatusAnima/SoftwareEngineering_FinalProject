@@ -1,5 +1,3 @@
-package SE_Final;
-
 import java.io.IOException;
 
 public class President extends Manager {

@@ -1,5 +1,3 @@
-package SE_Final;
-
 import java.time.LocalDate;
 import java.util.Scanner;
 

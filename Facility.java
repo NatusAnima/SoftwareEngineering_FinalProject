@@ -1,5 +1,3 @@
-package SE_Final;
-
 import java.util.*;
 
 public class Facility {
