@@ -11,7 +11,8 @@ public class President extends Manager {
         this.key = key;
         this.failedAttempts = 0;
     }
- // Grant pardon to a citizen
+
+    // Grant pardon to a citizen
     public void grantPardon(Citizen citizen) {
         boolean isPardoned = false; // משתנה לסימון אם האזרח חנון
 
@@ -38,6 +39,8 @@ public class President extends Manager {
         // הפעלת manageDetention לעדכון מצב הכלואים
         getThreatManagementSystem().manageDetention();
     }
+
+    // Emergency detention for a citizen
     public void emergencyDetention(Citizen citizen) {
         if (citizen.isInDetention()) {
             System.out.println("Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") is already detained.");
@@ -100,5 +103,81 @@ public class President extends Manager {
         }
     }
 
- 
+    // Revoke pardon - returns the citizen to a facility if they were pardoned and updates their threat level
+    public void revokePardon(Citizen citizen) {
+        boolean isRevoked = false; // משתנה לסימון אם החנינה בוטלה
+
+        // אם האזרח לא במעצר, נעדכן את מדד האיום ונחזיר אותו למתקן
+        if (!citizen.isInDetention()) {
+            citizen.updateThreatLevel(); // עדכון מדד האיום לפי הנתונים האמיתיים
+            System.out.println("Pardon for Citizen " + citizen.getName() + " has been revoked. Threat level reset to " + citizen.getThreatLevel() + ".");
+
+            // הוספת האזרח חזרה למתקן כליאה כלשהו (נניח כל מתקן)
+            for (Facility facility : getThreatManagementSystem().getFacilities()) {
+                boolean added = facility.addCitizen(citizen); // הוספת האזרח למתקן כליאה
+                if (added) {
+                    citizen.setInDetention(true); // עדכון סטטוס האזרח כמי שנמצא במעצר
+                    System.out.println("Citizen " + citizen.getName() + " has been returned to facility " + facility.getName() + ".");
+                    isRevoked = true;
+                    break; // אין צורך להמשיך לחפש
+                }
+            }
+        }
+
+        // אם האזרח לא היה חנון מלכתחילה
+        if (!isRevoked) {
+            System.out.println("Citizen " + citizen.getName() + " is not pardoned or is already in detention.");
+        }
+
+        // הפעלת manageDetention לעדכון מצב הכלואים
+        getThreatManagementSystem().manageDetention();
+    }
+
+    // Revoke emergency detention - resets the citizen's threat level and returns them to their original status
+    public void revokeEmergencyDetention(Citizen citizen) {
+        if (!citizen.isInDetention()) {
+            System.out.println("Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") is not currently detained.");
+            return;
+        }
+
+        // עדכון מדד האיום של האזרח
+        citizen.updateThreatLevel();
+        System.out.println("Emergency detention for Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") has been revoked. Threat level updated to " + citizen.getThreatLevel() + ".");
+
+        // עדכון סטטוס האזרח כמי שלא במעצר
+        citizen.setInDetention(false);
+
+        // הפעלת manageDetention לעדכון מצב הכלואים
+        getThreatManagementSystem().manageDetention();
+    }
+    public void imposeImmediateDetention(Citizen citizen) {
+        if (citizen.isInDetention()) {
+            System.out.println("Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") is already detained.");
+            return;
+        }
+
+        citizen.setThreatLevelToMax(); // העלאת מדד האיום למקסימום
+        citizen.setInDetention(true); // עדכון סטטוס האזרח כמי שנמצא במעצר
+
+        System.out.println("Immediate detention initiated for Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ").");
+
+        // הפעלת manageDetention כדי לעדכן את מצב הכלואים
+        getThreatManagementSystem().manageDetention();
+    }
+
+    // שיטה לביטול כליאה מיידית
+    public void revokeImmediateDetention(Citizen citizen) {
+        if (!citizen.isInDetention()) {
+            System.out.println("Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") is not currently detained.");
+            return;
+        }
+
+        citizen.updateThreatLevel(); // עדכון מדד האיום של האזרח
+        citizen.setInDetention(false); // ביטול סטטוס המעצר
+
+        System.out.println("Immediate detention for Citizen " + citizen.getName() + " (ID: " + citizen.getId() + ") has been revoked.");
+
+        // הפעלת manageDetention לעדכון מצב הכלואים
+        getThreatManagementSystem().manageDetention();
+    }
 }

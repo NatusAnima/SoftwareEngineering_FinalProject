@@ -150,5 +150,20 @@ public class Manager {
             threatManagementSystem.manageDetention();
         }
     }
+ // Method to report economicPercentile change for a Citizen
+    public void reportEconomicPercentile(Citizen citizen, int newEconomicPercentile) {
+        citizen.reportEconomicPercentile(newEconomicPercentile);
+    }
+
+    // Method to report governmentSupportLevel change for a Citizen
+    public void reportGovernmentSupportLevel(Citizen citizen, int newGovernmentSupportLevel) {
+        citizen.reportGovernmentSupportLevel(newGovernmentSupportLevel);
+    }
+
+    // Method to report publicImpactScore change for a Citizen
+    public void reportPublicImpactScore(Citizen citizen, int newPublicImpactScore) {
+        citizen.reportPublicImpactScore(newPublicImpactScore);
+    }
+
 
 }
