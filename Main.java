@@ -1,55 +1,28 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+	
+	private static final String CITIZENS_FILE = "citizens.txt";
+    private static final String FACILITIES_FILE = "facilities.txt";
+    private static final String MANAGER_FILE = "manager.txt";
+    private static final String PRESIDENT_FILE = "president.txt";
+    
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         
         // Create the ThreatManagementSystem and initial manager
         ThreatManagementSystem system = new ThreatManagementSystem(null);
-        Manager manager = new Manager("admin", "admin12345", system);
-        system.setManager(manager);
-
-        // Create president with higher authority
-        President president = new President("1", "Aa123456", "12345678", system);
-        
-        // Create 3 detention facilities
-        Facility facility1 = new Facility("F001", "Maximum Security Facility", 10);
-        
-        // Add facilities to the system
-        system.addFacility(facility1);
-       
-        
-        // Create and add citizens
-        Citizen[] citizens = {
-        	    new Citizen("John Doe", LocalDate.of(1990, 5, 15), "A", 7, 8, 3, false, "1001"),
-        	    new Citizen("Jane Smith", LocalDate.of(1985, 8, 22), "B", 5, 3, 7, false, "1002"),
-        	    new Citizen("Bob Johnson", LocalDate.of(1995, 3, 10), "C", 8, 2, 8, false, "1003"),
-        	    new Citizen("Alice Brown", LocalDate.of(1988, 11, 30), "A", 6, 7, 4, false, "1004"),
-        	    new Citizen("Charlie Wilson", LocalDate.of(1992, 7, 25), "B", 9, 1, 9, true, "1005"),
-        	    new Citizen("Diana Clark", LocalDate.of(1987, 4, 18), "C", 4, 4, 6, false, "1006"),
-        	    new Citizen("Edward Davis", LocalDate.of(1993, 9, 5), "A", 3, 9, 2, false, "1007"),
-        	    new Citizen("Fiona White", LocalDate.of(1991, 1, 12), "B", 7, 2, 8, false, "1008"),
-        	    new Citizen("George Miller", LocalDate.of(1986, 6, 28), "C", 8, 10, 9, false, "1009"),
-        	    new Citizen("Helen Taylor", LocalDate.of(1994, 2, 15), "A", 5, 8, 3, false, "1010"),
-        	    new Citizen("Ian Anderson", LocalDate.of(1989, 10, 8), "B", 6, 3, 7, false, "1011"),
-        	    new Citizen("Julia Martin", LocalDate.of(1996, 12, 20), "C", 10, 10, 1, true, "1012"),
-        	    new Citizen("Kevin Moore", LocalDate.of(1984, 7, 3), "A", 4, 7, 4, false, "1013"),
-        	    new Citizen("Laura Hall", LocalDate.of(1993, 5, 17), "B", 7, 1, 9, false, "1014"),
-        	    new Citizen("Michael King", LocalDate.of(1990, 8, 29), "C", 8, 4, 6, false, "1015"),
-        	    new Citizen("Nancy Lee", LocalDate.of(1988, 3, 14), "A", 5, 9, 2, false, "1016"),
-        	    new Citizen("Oscar Young", LocalDate.of(1995, 11, 26), "B", 6, 2, 8, false, "1017"),
-        	    new Citizen("Patricia Adams", LocalDate.of(1987, 9, 9), "C", 9, 1, 9, false, "1018"),
-        	    new Citizen("Quinn Roberts", LocalDate.of(1992, 4, 23), "A", 4, 8, 3, false, "1019"),
-        	    new Citizen("Rachel Turner", LocalDate.of(1991, 2, 7), "B", 7, 3, 7, true, "1020")
-        	};
-
-        for (Citizen citizen : citizens) {
-            system.addCitizen(citizen);
-        }
+        loadData(system);
         
         system.manageDetention(); // Initial detention management
         
+        //saveData(system.getManager(), system.getPresident(), system.getFacilities(), system.getCitizens());
+
         boolean running = true;
         while (running) {
             System.out.println("\n=== Threat Management System ===");
@@ -64,10 +37,10 @@ public class Main {
             
             switch (choice) {
                 case 1:
-                    handleManagerLogin(scanner, manager, system);
+                    handleManagerLogin(scanner, system.getManager(), system);
                     break;
                 case 2:
-                    handlePresidentLogin(scanner, president, system);
+                    handlePresidentLogin(scanner, system.getPresident(), system);
                     break;
                 case 3:
                     viewFacilityDetails(scanner, system);
@@ -332,4 +305,80 @@ public class Main {
         }
     }
 
+    private static void saveData(Manager manager, President president, List<Facility> facilities, Collection<Citizen> citizens) {
+        if (citizens != null && !citizens.isEmpty()) {
+            DataHandler.saveCitizensToFile(new ArrayList<>(citizens), CITIZENS_FILE); // Directly use the collection
+        }
+
+        if (facilities != null && !facilities.isEmpty()) {
+            DataHandler.saveFacilitiesToFile(facilities, FACILITIES_FILE);
+        }
+
+        if (manager != null) {
+            DataHandler.saveManagerToFile(manager, MANAGER_FILE);
+        }
+
+        if (president != null) {
+            DataHandler.savePresidentToFile(president, PRESIDENT_FILE);
+        }
+    }
+
+
+    private static void loadData(ThreatManagementSystem system) {
+        // Load Citizens
+        List<Citizen> loadedCitizens = DataHandler.loadCitizensFromFile(system, CITIZENS_FILE);
+        if (loadedCitizens == null || loadedCitizens.isEmpty()) {
+            // Create default citizens if none are loaded
+            Citizen[] citizens = {
+            	    new Citizen("John Doe", LocalDate.of(1990, 5, 15), "A", 7, 8, 3, false, "1001"),
+            	    new Citizen("Jane Smith", LocalDate.of(1985, 8, 22), "B", 5, 3, 7, false, "1002"),
+            	    new Citizen("Bob Johnson", LocalDate.of(1995, 3, 10), "C", 8, 2, 8, false, "1003"),
+            	    new Citizen("Alice Brown", LocalDate.of(1988, 11, 30), "A", 6, 7, 4, false, "1004"),
+            	    new Citizen("Charlie Wilson", LocalDate.of(1992, 7, 25), "B", 9, 1, 9, true, "1005"),
+            	    new Citizen("Diana Clark", LocalDate.of(1987, 4, 18), "C", 4, 4, 6, false, "1006"),
+            	    new Citizen("Edward Davis", LocalDate.of(1993, 9, 5), "A", 3, 9, 2, false, "1007"),
+            	    new Citizen("Fiona White", LocalDate.of(1991, 1, 12), "B", 7, 2, 8, false, "1008"),
+            	    new Citizen("George Miller", LocalDate.of(1986, 6, 28), "C", 8, 10, 9, false, "1009"),
+            	    new Citizen("Helen Taylor", LocalDate.of(1994, 2, 15), "A", 5, 8, 3, false, "1010"),
+            	    new Citizen("Ian Anderson", LocalDate.of(1989, 10, 8), "B", 6, 3, 7, false, "1011"),
+            	    new Citizen("Julia Martin", LocalDate.of(1996, 12, 20), "C", 10, 10, 1, true, "1012"),
+            	    new Citizen("Kevin Moore", LocalDate.of(1984, 7, 3), "A", 4, 7, 4, false, "1013"),
+            	    new Citizen("Laura Hall", LocalDate.of(1993, 5, 17), "B", 7, 1, 9, false, "1014"),
+            	    new Citizen("Michael King", LocalDate.of(1990, 8, 29), "C", 8, 4, 6, false, "1015"),
+            	    new Citizen("Nancy Lee", LocalDate.of(1988, 3, 14), "A", 5, 9, 2, false, "1016"),
+            	    new Citizen("Oscar Young", LocalDate.of(1995, 11, 26), "B", 6, 2, 8, false, "1017"),
+            	    new Citizen("Patricia Adams", LocalDate.of(1987, 9, 9), "C", 9, 1, 9, false, "1018"),
+            	    new Citizen("Quinn Roberts", LocalDate.of(1992, 4, 23), "A", 4, 8, 3, false, "1019"),
+            	    new Citizen("Rachel Turner", LocalDate.of(1991, 2, 7), "B", 7, 3, 7, true, "1020")
+            	};
+            for (Citizen citizen : citizens) {
+                system.addCitizen(citizen);
+            }
+        }
+
+        // Load Facilities
+        List<Facility> loadedFacilities = DataHandler.loadFacilitiesFromFile(system, FACILITIES_FILE);
+        if (loadedFacilities == null || loadedFacilities.isEmpty()) {
+            // Create default facilities if none are loaded
+            Facility facility1 = new Facility("F001", "Maximum Security Facility", 10);
+            system.addFacility(facility1);
+        }
+
+        // Load Manager
+        Manager manager = DataHandler.loadManagerFromFile(system, MANAGER_FILE);
+        if (manager == null) {
+            // Create a default manager if none is loaded
+            manager = new Manager("admin", "admin12345", system);
+        }
+        system.setManager(manager);
+
+        // Load President
+        President president = DataHandler.loadPresidentFromFile(system, PRESIDENT_FILE);
+        if (president == null) {
+            // Create a default president if none is loaded
+            president = new President("1", "Aa123456", "12345678", system);
+        }
+        system.setPresident(president);
+    }
+    
 }

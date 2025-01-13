@@ -8,6 +8,7 @@ public class ThreatManagementSystem {
     private List<Citizen> citizens;
     private List<Facility> facilities;
     private Manager manager;
+    private President president;
 
     public ThreatManagementSystem(Manager manager) {
         this.citizens = new ArrayList<>();
@@ -279,4 +280,14 @@ public class ThreatManagementSystem {
                 .min(Comparator.comparingDouble(f -> (double) f.getCurrentOccupancy() / f.getCapacity()))
                 .orElse(null);
     }
+
+	public void setPresident(President president) {
+		this.president = president;
+	}
+    
+	public President getPresident() {
+		return president;
+	}
+
+
 }

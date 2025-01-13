@@ -165,5 +165,7 @@ public class Manager {
         citizen.reportPublicImpactScore(newPublicImpactScore);
     }
 
-
+    public byte[] getHashedPassword() {
+        return this.hashedPassword;
+    }
 }
