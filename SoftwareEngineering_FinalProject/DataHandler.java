@@ -139,7 +139,6 @@ public class DataHandler {
     }
 
     private static Facility facilityFromFileString(String data, ThreatManagementSystem system) {
-        // Existing code ... (modify to handle detained citizens)
         String[] parts = data.split(",");
         if (parts.length < 3) {
             throw new IllegalArgumentException("Invalid facility data format: " + data);
