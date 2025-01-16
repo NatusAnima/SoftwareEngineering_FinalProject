@@ -71,7 +71,6 @@ public class DataHandler {
             logger.log(Level.SEVERE, "Error saving facilities to " + fullPath, e);
         }
     }
-
     public static List<Facility> loadFacilitiesFromFile(ThreatManagementSystem system, String filename) {
         String fullPath = DATA_FOLDER + File.separator + filename;
         List<Facility> facilities = new ArrayList<>();
@@ -79,9 +78,8 @@ public class DataHandler {
             String line;
             while ((line = reader.readLine()) != null) {
                 try {
-                    Facility facility = facilityFromFileString(line);
+                    Facility facility = facilityFromFileString(line, system);
                     facilities.add(facility);
-                    system.addFacility(facility);
                 } catch (IllegalArgumentException e) {
                     logger.log(Level.WARNING, "Invalid facility data: " + line, e);
                 }
@@ -126,22 +124,49 @@ public class DataHandler {
         }
     }
 
+
     private static String facilityToFileString(Facility facility) {
-        return String.format("%s,%s,%d", facility.getFacilityId(), facility.getName(), facility.getCapacity());
-    }
-
-    private static Facility facilityFromFileString(String data) {
-        try {
-            String[] parts = data.split(",");
-            if (parts.length != 3) {
-                throw new IllegalArgumentException("Invalid facility data format: " + data);
-            }
-            return new Facility(parts[0], parts[1], Integer.parseInt(parts[2]));
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Invalid facility data format: " + data, e);
+        // Existing code ... (modify to include detained citizens)
+        List<Citizen> detainedCitizens = facility.getDetainedCitizens();
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("%s,%s,%d", facility.getFacilityId(), facility.getName(), facility.getCapacity()));
+        builder.append(","); // separator
+        for (Citizen citizen : detainedCitizens) {
+            builder.append(citizen.getId()); // Assuming citizen ID is unique identifier
+            builder.append(",");
         }
+        return builder.toString();
     }
 
+    private static Facility facilityFromFileString(String data, ThreatManagementSystem system) {
+        // Existing code ... (modify to handle detained citizens)
+        String[] parts = data.split(",");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Invalid facility data format: " + data);
+        }
+
+        Facility facility = new Facility(parts[0], parts[1], Integer.parseInt(parts[2]));
+
+        // Extract detained citizen IDs
+        if (parts.length > 3) {
+            List<Citizen> detainedCitizens = new ArrayList<>();
+            for (int i = 3; i < parts.length; i++) {
+                String citizenId = parts[i];
+                Citizen citizen = system.findCitizenById(citizenId); // Assuming system can find citizen by ID
+                if (citizen != null) {
+                    detainedCitizens.add(citizen);
+                } else {
+                    logger.warning("Citizen with ID " + citizenId + " not found while loading facility");
+                }
+            }
+            facility.setDetainedCitizens(detainedCitizens);
+        }
+
+        return facility;
+    }
+
+    
+    
     public static void saveManagerToFile(Manager manager, String filename) {
         String fullPath = DATA_FOLDER + File.separator + filename;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fullPath));
